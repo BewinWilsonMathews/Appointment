@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Appointment Booking</title>
+  <style>
+    :root {
+      --primary-color: #83358F;
+      --bg-color: #f9f9f9;
+      --border-color: #ddd;
+      --font-color: #333;
+    }
+
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: var(--bg-color);
+      color: var(--font-color);
+      padding: 20px;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+.logo {
+  width: 200px;   /* smaller size (you can tweak this) */
+  height: auto;  /* keeps proportions */
+  display: block;
+  margin: 0 auto 20px; /* center logo and add space below */
+}
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: var(--primary-color);
+    }
+
+    .customer-tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 25px;
+      gap: 10px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background-color: #e0e0e0;
+      color: #333;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+      border: 2px solid transparent;
+    }
+
+    .tab.active {
+      background-color: var(--primary-color);
+      color: #fff;
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 10px rgba(131, 53, 143, 0.3);
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"], input[type="tel"], select, input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    input[type="text"]:focus, input[type="tel"]:focus, select:focus, input[type="date"]:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 5px rgba(131, 53, 143, 0.4);
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .time-range {
+      margin: 15px 0;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .time-range label {
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .slots-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .slot {
+      background-color: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      flex: 0 0 100px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slot:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .slot.selected {
+      background-color: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 8px rgba(131, 53, 143, 0.4);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* ✅ Confirm Button */
+    button {
+      background-color: var(--primary-color);
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      background-color: #6a2775;
+      box-shadow: 0 4px 12px rgba(131, 53, 143, 0.4);
+    }
+
+    button:active {
+      transform: scale(0.96);
+      background-color: #521c5a;
+    }
+
+/* Uniform medium-sized boxes for Dr Alex’s fixed slots */
+.large-slot {
+  flex: 0 1 30%;              /* all three fit in one line on desktop */
+  min-width: 130px;
+  max-width: 160px;
+  height: 60px;               /* slightly smaller height */
+  padding: 8px 4px;
+  font-size: 18px;
+  font-weight: 600;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.large-slot:hover {
+  background-color: var(--primary-color);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(131, 53, 143, 0.3);
+}
+
+.large-slot.selected {
+  background-color: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+  box-shadow: 0 3px 10px rgba(131, 53, 143, 0.3);
+}
+
+.large-slot.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Responsive adjustment — stack vertically on mobile */
+@media (max-width: 600px) {
+  .large-slot {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+}
+
+.slots-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- ✅ Logo -->
+    <img src="images/aayushcarelogowhite.jpg" alt="Aayush Care Logo" class="logo">
+
+    <h2>Book Appointment</h2>
+    <div class="customer-tabs">
+      <div class="tab active" data-type="new">New Patient</div>
+      <div class="tab" data-type="old">Follow Up</div>
+    </div>
+
+<!-- ✅ New Patient Section -->
+<div class="section" id="newCustomerSection">
+  <label>Name:
+    <input type="text" id="newName" placeholder="Enter full name" />
+  </label>
+  <label>Contact No:
+    <input type="tel" id="newContact" placeholder="Enter contact number" />
+  </label>
+  <label>Place:
+    <input type="text" id="newPlace" placeholder="Enter place" />
+  </label>
+
+<label>Preferred Language:
+  <select id="newLanguage">
+    <option value="">-- Select Language --</option>
+    <option value="english">English</option>
+    <option value="malayalam">Malayalam</option>
+    <option value="hindi">Hindi</option>
+    <option value="telugu">Telugu</option>
+    <option value="tamil">Tamil</option>
+  </select>
+</label>
+
+
+  <!-- ✅ How did you hear about us -->
+  <label>How did you hear about us?:
+    <select id="newReferral">
+      <option value="">-- Select Option --</option>
+      <option value="social_media">Social Media</option>
+      <option value="friend_family">Referred by Friend/Family</option>
+      <option value="doctor_referral">Doctor Referral</option>
+      <option value="google">Google Search</option>
+      <option value="walkin">Walk-in</option>
+      <option value="other">Other</option>
+    </select>
+  </label>
+
+
+  <label>Choose Doctor:
+  <select id="newDoctor">
+    <option value="">-- Select Doctor --</option>
+    <option value="junior_consulting">Junior Doctor / Consulting Doctor</option>
+    <option value="consultant_alex">Consultant Doctor + Dr Alex</option>
+    <option value="alex_only">Dr Alex Only</option>
+  </select>
+</label>
+
+  <label>Mode of Appointment:</label>
+  <div class="radio-group">
+    <label><input type="radio" name="modeNew" value="online"> Online</label>
+    <label><input type="radio" name="modeNew" value="offline"> Offline</label>
+  </div>
+</div>
+
+<!-- ✅ Old Customer Section -->
+<div class="section hidden" id="oldCustomerSection">
+  <label>Enter Patient ID:
+    <input type="text" id="customerId" placeholder="E.g., 12345ABC" />
+    <div id="patientNameDisplay" class="hidden" style="margin-top: 10px; font-weight: bold;"></div>
+  </label>
+
+  <label>Mode of Appointment:</label>
+  <div class="radio-group">
+    <label><input type="radio" name="modeOld" value="online"> Online</label>
+    <label><input type="radio" name="modeOld" value="offline"> Offline</label>
+  </div>
+</div>
+
+<!-- ===== Replace this block with the new date picker & validation ===== -->
+<label>Select Date:
+  <!-- readonly to prevent typing; we'll open native picker programmatically -->
+  <input type="date" id="appointmentDate" style="cursor: pointer;" />
+</label>
+<div id="dateHelp" style="font-size:13px; color:#666; margin-top:6px;">
+  Appointments must be booked at least 2 days in advance.
+</div>
+<div id="blockedDatesList" style="font-size:13px; color:#a33; margin-top:6px; display:none;"></div>
+
+    <!-- ✅ Time Range Selection -->
+    <div id="timeRangeSection" class="section hidden">
+      <h4>Select Time Range:</h4>
+      <div class="time-range">
+        <label><input type="radio" name="timeRange" value="morning"> Morning (9:00 AM – 12:30 PM)</label>
+        <label><input type="radio" name="timeRange" value="afternoon"> Afternoon (12:45 PM – 5:00 PM)</label>
+        <label><input type="radio" name="timeRange" value="evening"> Evening (5:15 PM – 9:00 PM)</label>
+      </div>
+    </div>
+
+    <div class="section hidden" id="slotSection">
+      <h4>Available Slots:</h4>
+      <div id="slotsContainer" class="slots-grid"></div>
+    </div>
+
+  </div>
+
+<script>
+  let selectedCustomerType = "new";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const tabs = document.querySelectorAll('.tab');
+    const newCustomerSection = document.getElementById('newCustomerSection');
+    const oldCustomerSection = document.getElementById('oldCustomerSection');
+    const slotSection = document.getElementById('slotSection');
+    const slotsContainer = document.getElementById('slotsContainer');
+    const patientNameDisplay = document.getElementById("patientNameDisplay");
+
+    oldCustomerSection.classList.add("hidden");
+    slotSection.classList.add("hidden");
+
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+
+        selectedCustomerType = tab.dataset.type;
+
+        if (selectedCustomerType === "old") {
+          newCustomerSection.classList.add("hidden");
+          oldCustomerSection.classList.remove("hidden");
+          patientNameDisplay.classList.remove("hidden");
+        } else {
+          newCustomerSection.classList.remove("hidden");
+          oldCustomerSection.classList.add("hidden");
+          patientNameDisplay.classList.add("hidden");
+          patientNameDisplay.textContent = "";
+        }
+
+        slotSection.classList.add("hidden");
+        slotsContainer.innerHTML = "";
+      });
+    });
+  });
+</script>
+
+<!-- ✅ Patient Name Fetcher -->
+<script>
+  const customerIdInput = document.getElementById("customerId");
+  const patientNameDisplay = document.getElementById("patientNameDisplay");
+  let debounceTimer;
+
+  customerIdInput?.addEventListener("input", () => {
+    clearTimeout(debounceTimer);
+    const patientId = customerIdInput.value.trim();
+    if (!patientId) {
+      patientNameDisplay.textContent = "";
+      return;
+    }
+    debounceTimer = setTimeout(() => {
+      if (selectedCustomerType === "old") {
+        fetchPatientName(patientId);
+      }
+    }, 500);
+  });
+
+  async function fetchPatientName(patientId) {
+    patientNameDisplay.textContent = "Checking...";
+    try {
+      const response = await fetch(`https://software.aayushcare.com/api/resource/Patient/${patientId}`, {
+        method: "GET",
+        headers: {
+          "Authorization": "token 7897c339c442e4b:01ff7013b92aa32"
+        }
+      });
+      if (!response.ok) throw new Error("Not found");
+      const result = await response.json();
+      const data = result?.data;
+      const name = data?.patient_name;
+      const addressLine2 = data?.custom_address_line_2;
+      if (name) {
+        let html = `Patient Name: ${name}`;
+        if (addressLine2) {
+          html += `<br>Place: ${addressLine2}`;
+        }
+        patientNameDisplay.innerHTML = html;
+      } else {
+        patientNameDisplay.textContent = "Patient name not found.";
+      }
+    } catch (error) {
+      patientNameDisplay.textContent = "Patient not found or error.";
+    }
+  }
+</script>
+
+<!-- ===== Replace your existing Time Range & Slot Display script with THIS block ===== -->
+<script>
+  // ---------- CONFIG ----------
+  const blockedDates = [
+    // '2025-11-01', ...
+  ];
+  let daysBuffer = 2; // minimum days in future (may be updated from server)
+
+  // Time-range configurations per customer type
+  // Each entry: { startHour, startMinute, endHour, endMinute, intervalMinutes, labelText (optional) }
+  const timeRangesConfig = {
+    new: {
+      morning:   { startHour: 9,  startMinute: 0,  endHour: 13, endMinute: 0, intervalMinutes: 60, label: 'Morning (9:00 AM – 1:00 PM)' },
+      afternoon: { startHour: 14, startMinute: 0,  endHour: 17, endMinute: 0, intervalMinutes: 60, label: 'Afternoon (2:00 PM – 5:00 PM)' },
+      evening:   { startHour: 18, startMinute: 0,  endHour: 21, endMinute: 0, intervalMinutes: 60, label: 'Evening (6:00 PM – 9:00 PM)' }
+    },
+    old: {
+      morning:   { startHour: 9,  startMinute: 0,  endHour: 11, endMinute: 30, intervalMinutes: 15, label: 'Morning (9:00 AM – 11:30 AM)' },
+      afternoon: { startHour: 12, startMinute: 30, endHour: 16, endMinute: 30, intervalMinutes: 15, label: 'Afternoon (12:30 PM – 4:30 PM)' },
+      evening:   { startHour: 17, startMinute: 0,  endHour: 20, endMinute: 0, intervalMinutes: 15, label: 'Evening (5:00 PM – 8:00 PM)' }
+    }
+  };
+
+  // ---------- DOM ----------
+  const newDoctorSelect = document.getElementById('newDoctor');
+  const appointmentDateInput = document.getElementById('appointmentDate');
+  const blockedDatesList = document.getElementById('blockedDatesList');
+  const dateHelp = document.getElementById('dateHelp');
+  const slotsContainer = document.getElementById('slotsContainer');
+  const slotSection = document.getElementById('slotSection');
+
+  // Containers for two separate radio blocks (these must be added to DOM - created here)
+  // We'll create elements dynamically so you don't need to change your HTML outside the script.
+  const timeRangeWrapper = document.getElementById('timeRangeSection');
+  const timeRangeNewDiv = document.createElement('div');
+  timeRangeNewDiv.id = 'timeRangeNew';
+  timeRangeNewDiv.className = 'time-range';
+  const timeRangeOldDiv = document.createElement('div');
+  timeRangeOldDiv.id = 'timeRangeOld';
+  timeRangeOldDiv.className = 'time-range';
+
+  // Insert the two radio blocks into existing wrapper (and wrap with heading)
+  timeRangeWrapper.innerHTML = '<h4>Select Time Range:</h4>';
+  timeRangeWrapper.appendChild(timeRangeNewDiv);
+  timeRangeWrapper.appendChild(timeRangeOldDiv);
+
+  let selectedSlot = null;
+
+  // ---------- Helpers ----------
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function formatDateYMDFromDate(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+  function setMinAppointmentDate(days){
+    const now = new Date();
+    const min = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    min.setDate(min.getDate() + days);
+    appointmentDateInput.min = formatDateYMDFromDate(min);
+    const dd = pad(min.getDate()), mm = pad(min.getMonth()+1), yyyy = min.getFullYear();
+    dateHelp.textContent = `Appointments must be booked at least ${days} days in advance. Earliest available: ${dd}/${mm}/${yyyy}`;
+  }
+
+  function parseYMDToLocalDate(ymd){
+    const parts = String(ymd).split('-');
+    if(parts.length !== 3) return null;
+    return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]), 0,0,0,0);
+  }
+
+  function isDateAtLeastBuffer(selectedDateStr, days){
+    if(!selectedDateStr) return false;
+    const selected = parseYMDToLocalDate(selectedDateStr);
+    if(!selected) return false;
+    const now = new Date();
+    const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0,0,0,0);
+    const min = new Date(todayMid);
+    min.setDate(min.getDate() + days);
+    return selected >= min;
+  }
+
+  function isBlocked(dateStr){ return blockedDates.includes(dateStr); }
+
+  function showBlockedDatesUI(){
+    if(!blockedDates || blockedDates.length === 0){
+      blockedDatesList.style.display = 'none';
+      blockedDatesList.textContent = '';
+      return;
+    }
+    blockedDatesList.style.display = 'block';
+    blockedDatesList.textContent = 'Unavailable dates: ' + blockedDates.join(', ');
+  }
+
+  // generate interval-based slots from a config
+  function generateSlotsFromConfig(cfg) {
+    const slots = [];
+    let cur = new Date();
+    cur.setHours(cfg.startHour, cfg.startMinute, 0, 0);
+    const end = new Date();
+    end.setHours(cfg.endHour, cfg.endMinute, 0, 0);
+    while (cur <= end) {
+      const hours = cur.getHours();
+      const minutes = cur.getMinutes();
+      const ampm = hours >= 12 ? "PM" : "AM";
+      const displayHours = hours % 12 || 12;
+      const displayMinutes = minutes.toString().padStart(2, "0");
+      slots.push(`${displayHours}:${displayMinutes} ${ampm}`);
+      cur.setMinutes(cur.getMinutes() + cfg.intervalMinutes);
+    }
+    return slots;
+  }
+
+  function renderThreeFixedSlots(chosenDate) {
+    const fixed = [
+      { id: 'slot1', label: '9:30 AM–10:30 AM', disabled: false },
+      { id: 'slot2', label: '3:00 PM–4:00 PM',  disabled: false },
+      { id: 'slot3', label: '5:30 PM–6:30 PM',  disabled: false }
+    ];
+    slotsContainer.innerHTML = '';
+    slotSection.classList.remove('hidden');
+    fixed.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'slot large-slot';
+      div.textContent = item.label;
+      if (item.disabled) {
+        div.classList.add('disabled');
+        div.style.cursor = 'not-allowed';
+      } else {
+        div.addEventListener('click', () => {
+          document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+          div.classList.add('selected');
+          selectedSlot = item.id;
+        });
+      }
+      div.dataset.date = chosenDate || '';
+      slotsContainer.appendChild(div);
+    });
+  }
+
+  // ---------- Render radios dynamically for accurate labels and separate groups ----------
+  function buildRadiosFor(type) {
+    const container = (type === 'new') ? timeRangeNewDiv : timeRangeOldDiv;
+    container.innerHTML = ''; // clear old
+    const groupName = (type === 'new') ? 'timeRangeNew' : 'timeRangeOld';
+    const cfgGroup = timeRangesConfig[type];
+    Object.keys(cfgGroup).forEach(key => {
+      const cfg = cfgGroup[key];
+      const label = cfg.label || key;
+      const id = `tr-${type}-${key}`;
+      const wrapper = document.createElement('label');
+      wrapper.style.fontWeight = 'bold';
+      wrapper.style.cursor = 'pointer';
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = groupName;
+      radio.value = key;
+      radio.id = id;
+      radio.style.marginRight = '8px';
+      wrapper.appendChild(radio);
+      wrapper.appendChild(document.createTextNode(' ' + label));
+      container.appendChild(wrapper);
+    });
+  }
+
+  // ---------- wire radio handlers for both groups ----------
+  function wireRadioHandlers() {
+    // New patient radios
+    timeRangeNewDiv.addEventListener('change', (e) => {
+      if (!e.target || e.target.tagName !== 'INPUT') return;
+      onTimeRangeChosen('new', e.target.value);
+    });
+    // Old patient radios
+    timeRangeOldDiv.addEventListener('change', (e) => {
+      if (!e.target || e.target.tagName !== 'INPUT') return;
+      onTimeRangeChosen('old', e.target.value);
+    });
+  }
+
+  function onTimeRangeChosen(customerType, rangeKey) {
+    // If new patient & consultant_alex selected, ignore (we show fixed slots)
+    if (customerType === 'new' && newDoctorSelect && newDoctorSelect.value === 'consultant_alex') {
+      timeRangeWrapper.style.display = 'none';
+      renderThreeFixedSlots(appointmentDateInput.value);
+      return;
+    }
+
+    const chosenDate = appointmentDateInput.value;
+    if(!isDateAtLeastBuffer(chosenDate, daysBuffer) || isBlocked(chosenDate)){
+      alert('Selected date/time is invalid or unavailable. Please choose another date.');
+      // reset the radio (clear selection)
+      clearRadioSelection(customerType);
+      slotSection.classList.add('hidden');
+      return;
+    }
+    const cfg = timeRangesConfig[customerType][rangeKey];
+    if(!cfg) return;
+    const slots = generateSlotsFromConfig(cfg);
+    slotsContainer.innerHTML = '';
+    slotSection.classList.remove('hidden');
+    selectedSlot = null;
+    slots.forEach(time => {
+      const div = document.createElement('div');
+      div.className = 'slot';
+      div.textContent = time;
+      div.addEventListener('click', () => {
+        document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+        div.classList.add('selected');
+        selectedSlot = time;
+      });
+      slotsContainer.appendChild(div);
+    });
+  }
+
+  function clearRadioSelection(customerType) {
+    const groupName = (customerType === 'new') ? 'timeRangeNew' : 'timeRangeOld';
+    const radios = document.getElementsByName(groupName);
+    radios.forEach(r => r.checked = false);
+  }
+
+  // ---------- Initialization ----------
+  document.addEventListener('DOMContentLoaded', () => {
+    setMinAppointmentDate(daysBuffer);
+    showBlockedDatesUI();
+
+    // Build radio blocks once from configs
+    buildRadiosFor('new');
+    buildRadiosFor('old');
+    wireRadioHandlers();
+
+    // Initially hide both radio blocks, show relevant when date selected
+    timeRangeNewDiv.style.display = 'none';
+    timeRangeOldDiv.style.display = 'none';
+
+    // Open native picker where supported
+    appointmentDateInput.addEventListener('focus', () => {
+      if (typeof appointmentDateInput.showPicker === 'function') appointmentDateInput.showPicker();
+    });
+    appointmentDateInput.addEventListener('click', () => {
+      if (typeof appointmentDateInput.showPicker === 'function') appointmentDateInput.showPicker();
+    });
+    appointmentDateInput.addEventListener('keydown', (e) => {
+      const allowed = ['Tab','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Escape'];
+      if (!allowed.includes(e.key)) e.preventDefault();
+    });
+    appointmentDateInput.addEventListener('paste', (e) => e.preventDefault());
+
+    // React to doctor changes (only for New Patient tab)
+    if (newDoctorSelect) {
+      newDoctorSelect.addEventListener('change', () => {
+        const customerType = window.selectedCustomerType || 'new';
+        if (customerType !== 'new') return;
+        if (appointmentDateInput.value) onDatePicked();
+        else {
+          timeRangeWrapper.style.display = 'none';
+          slotSection.classList.add('hidden');
+          slotsContainer.innerHTML = '';
+        }
+      });
+    }
+
+    appointmentDateInput.addEventListener('change', onDatePicked);
+  });
+
+  // ---------- Date selection handler ----------
+  function onDatePicked(){
+    const chosen = appointmentDateInput.value;
+    // reset UI
+    slotSection.classList.add('hidden');
+    slotsContainer.innerHTML = "";
+    clearRadioSelection('new');
+    clearRadioSelection('old');
+    selectedSlot = null;
+
+    if(!chosen) return;
+
+    if(!isDateAtLeastBuffer(chosen, daysBuffer)){
+      alert(`Please choose a date at least ${daysBuffer} days from today.`);
+      appointmentDateInput.value = '';
+      return;
+    }
+
+    if(isBlocked(chosen)){
+      alert('Selected date is unavailable. Please choose a different date.');
+      appointmentDateInput.value = '';
+      return;
+    }
+
+    const customerType = window.selectedCustomerType || 'new';
+
+    // Follow-up ALWAYS uses its radio group
+    if (customerType === 'old') {
+      timeRangeWrapper.style.display = 'block';
+      timeRangeNewDiv.style.display = 'none';
+      timeRangeOldDiv.style.display = 'flex';
+      return;
+    }
+
+    // New patient: if Consultant + Dr Alex selected, show fixed 3 slots
+    const doctorVal = newDoctorSelect ? newDoctorSelect.value : '';
+    if (doctorVal === 'consultant_alex') {
+      timeRangeWrapper.style.display = 'none';
+      renderThreeFixedSlots(chosen);
+      return;
+    }
+
+    // Otherwise for New Patient show new patient radio group
+    timeRangeWrapper.style.display = 'block';
+    timeRangeNewDiv.style.display = 'flex';
+    timeRangeOldDiv.style.display = 'none';
+  }
+
+  // Note: server should enforce same validation before persisting appointments.
+</script>
+<!-- ===== End replacement ===== -->
+
+
+
+
+</body>
+</html>
